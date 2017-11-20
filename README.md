@@ -36,15 +36,16 @@
   ```
 
 - 运行demo
+  > demo的vid和key由vaptcha官方免费提供，只可在localhost:4396下使用，缺少一些限制，可能存在安全隐患。在实际生产环境中，我们建议你登陆vaptcha管理后台，在验证管理中添加对应的验证单元，并把domain参数设置为实际环境中的域名。
 
   ```shell
   git clone https://github.com/vaptcha/vaptcha-php-sdk.git
   cd vaptcha-php-sdk
   composer install
-  php -S 127.0.0.1:4396
+  php -S localhost:4396
   ```
 
-  打开[http://127.0.0.1:4396/demo](http://127.0.0.1:4396/demo)即可访问
+  打开[http://localhost:4396/demo](http://localhost:4396/demo)即可访问
 
 ### Step3.SDK接口
 
@@ -56,24 +57,15 @@ $v = new Vaptcha($vid, $key); // 实例化sdk，$vid 和 $key 为验证单元中
 
 SDK提供以下三个接口：
 
-- 获取流水号接口 `getChallenge()`
+- 获取流水号接口 `getChallenge($sceneId)` ，返回`json`字符串
 
-  example:
+  参数说明:
 
-  ```php
-  return $v->getVaptcha(); //返回json字符串
-  ```
+  `$sceneId`： 选填，场景id，请在vaptcha管理后台查看
 
 - 宕机模式接口 `downTime($data)`
 
-  example:
-
-  ```php
-  $data = $_GET['data'];
-  return $v->downTime($data);
-  ```
-
-- 二次验证接口 `validate($challenge, $token[, $sceneId])`
+- 二次验证接口 `validate($challenge, $token[, $sceneId])`，返回`Boolen`值
 
   参数说明: 
 
@@ -81,10 +73,4 @@ SDK提供以下三个接口：
 
   `$token`： 必填， 客户端验证通过后返回的令牌
 
-  `$sceneId`： 选填，默认为所有场景(此参数为后台配置的验证单元场景)
-
-  example:
-
-  ```php
-  $v->validate($_POST['challenge'], $_POST['token'], $_POST['sceneId'])
-  ```
+  `$sceneId`： 选填，场景id，与`getChallenge($sceneId)`的场景id保持一致
