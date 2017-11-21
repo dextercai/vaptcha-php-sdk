@@ -15,24 +15,12 @@
 
   [github下载地址](https://github.com/vaptcha/vaptcha-php-sdk)手动下载获取。
 
-- 推荐使用composer
+- 推荐使用composer安装
 
   > composer 是php的包管理工具， 通过composer.json里的配置管理依赖的包，同时可以在使用类时自动加载对应的包, 在你的composer.json中添加如下依赖
 
-  执行
-
   ```shell
   composer require Vaptcha/vaptcha-sdk;
-  ```
-
-  使用 Composer 的 autoload 引入
-
-  ```php
-  require_once('vendor/autoload.php');
-
-  use Vaptcha\Vaptcha;
-
-  $vaptcha = new Vaptcha($vid, $key);
   ```
 
 - 运行demo
@@ -52,7 +40,9 @@
 使用接口前需先实例化`Vaptcha`
 
 ```php
-$v = new Vaptcha($vid, $key); // 实例化sdk，$vid 和 $key 为验证单元中的VID和Key
+use Vaptcha\Vaptcha;
+
+$v = new Vaptcha($vid, $key); // 实例化sdk，$vid 和 $key 对应验证单元中的Vid和Key
 ```
 
 SDK提供以下三个接口：
@@ -63,7 +53,11 @@ SDK提供以下三个接口：
 
   `$sceneId`： 选填，场景id，请在vaptcha管理后台查看
 
-- 宕机模式接口 `downTime($data)`
+- 宕机模式接口 `downTime($data)`，返回`json`字符串
+
+  参数说明:
+
+  `$data`： GET请求返回的数据，`$_GET['data']`;
 
 - 二次验证接口 `validate($challenge, $token[, $sceneId])`，返回`Boolen`值
 
@@ -74,3 +68,4 @@ SDK提供以下三个接口：
   `$token`： 必填， 客户端验证通过后返回的令牌
 
   `$sceneId`： 选填，场景id，与`getChallenge($sceneId)`的场景id保持一致
+
