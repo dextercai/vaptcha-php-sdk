@@ -54,7 +54,7 @@ class Vaptcha
                 "challenge" => $challenge
             ));
         } else {
-        if ($now - $this->lastCheckdownTime > downTime_CHECK_TIME) {
+        if ($now - $this->lastCheckdownTime > DOWNTIME_CHECK_TIME) {
                 $this->lastCheckdownTime = $now;
                 $challenge = self::readContentFormGet("$url?$query&signature=$signature");
                 if ($challenge && $challenge != REQUEST_UESD_UP){
