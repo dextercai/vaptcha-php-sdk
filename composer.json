@@ -1,7 +1,7 @@
 {
     "name": "vaptcha/vaptcha-sdk",
     "description": "vaptcha sdk for php",
-    "keywords": ["vaptcha", "sdk"],
+    "keywords": ["vaptcha", "sdk", "captcha"],
     "type": "library",
     "license": "MIT",
     "authors": [
