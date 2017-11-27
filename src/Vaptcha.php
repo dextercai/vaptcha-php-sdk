@@ -66,7 +66,7 @@ class Vaptcha
                     ));
                 }
             }
-            return $this->GetDowniTimeCaptcha();
+            return $this->getDownTimeCaptcha();
         }
     }
 
