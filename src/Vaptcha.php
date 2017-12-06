@@ -228,30 +228,60 @@ class Vaptcha
 
     private static function postValidate($url, $data)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);  
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_HEADER, false);  
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('ContentType:application/x-www-form-urlencoded'));  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);  
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5*1000);  
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return $response;
+        if (function_exists('curl_exec')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);  
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HEADER, false);  
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('ContentType:application/x-www-form-urlencoded'));  
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);  
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5*1000);  
+            $errno = curl_errno($ch);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            return $curl_errno > 0 ? 'error' : $response;
+        } else {
+            $opts = array(
+                'http' => array(
+                    'method' => 'POST',
+                    'header'=> "Content-type: application/x-www-form-urlencoded\r\n" . "Content-Length: " . strlen($data) . "\r\n",
+                    'content' => $data,
+                    'timeout' => 5*1000
+                ),
+                'content' => $data
+            );
+            $context = stream_context_create($opts);
+            $response = @file_get_contents($url, false, $context);
+            return $response ? $response : 'error';
+        }
+        
     }
 
     private static function readContentFormGet($url)
     {
-        $ch = curl_init();  
-        curl_setopt($ch, CURLOPT_URL, $url); 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);  
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5*1000);  
-        $return = curl_exec($ch);  
-        curl_close($ch);
-        return $return;
+        if (function_exists('curl_exec')) {
+            $ch = curl_init();  
+            curl_setopt($ch, CURLOPT_URL, $url); 
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);  
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5*1000);  
+            $errno = curl_errno($ch);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            return $curl_errno > 0 ? false : $response;
+        } else {
+            $opts = array(
+                'http' => array(
+                    'method' => 'GET',
+                    'timeout' => 5*1000
+                )
+            );
+            $context = stream_context_create($opts);
+            $response = @file_get_contents($url, false, $context);
+            return $response ? $response : false;
+        }
     }
 
     private function HMACSHA1($key, $text)
