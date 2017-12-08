@@ -270,7 +270,7 @@ class Vaptcha
             $errno = curl_errno($ch);
             $response = curl_exec($ch);
             curl_close($ch);
-            return $curl_errno > 0 ? false : $response;
+            return $errno > 0 ? false : $response;
         } else {
             $opts = array(
                 'http' => array(
@@ -284,10 +284,31 @@ class Vaptcha
         }
     }
 
-    private function HMACSHA1($key, $text)
+    private function HMACSHA1($key, $str)
     {
-        $result = hash_hmac('sha1', $text, $key, true);
-        $result = str_replace(array('/', '+', '='), '', base64_encode($result));
-        return $result;
+        $signature = "";  
+        if (function_exists('hash_hmac')) {
+            $signature = hash_hmac("sha1", $str, $key, true);
+        } else {
+            $blocksize = 64;  
+            $hashfunc = 'sha1';  
+            if (strlen($key) > $blocksize) {  
+                $key = pack('H*', $hashfunc($key));  
+            }  
+            $key = str_pad($key, $blocksize, chr(0x00));  
+            $ipad = str_repeat(chr(0x36), $blocksize);  
+            $opad = str_repeat(chr(0x5c), $blocksize);  
+            $signature = pack(  
+                    'H*', $hashfunc(  
+                            ($key ^ $opad) . pack(  
+                                    'H*', $hashfunc(  
+                                            ($key ^ $ipad) . $str  
+                                    )  
+                            )  
+                    )  
+            );  
+        }  
+        $signature = str_replace(array('/', '+', '='), '', base64_encode($signature));
+        return $signature;  
     }
 }
