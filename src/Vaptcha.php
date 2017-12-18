@@ -29,7 +29,7 @@ class Vaptcha
     public function getChallenge($sceneId = "") 
     {
         $url = API_URL.GET_CHALLENGE_URL;
-        $now = time() * 1000;
+        $now = $this->getCurrentTime();
         $query = "id=$this->vid&scene=$sceneId&time=$now&version=".VERSION.'&sdklang='.SDK_LANG;
         $signature = $this->HMACSHA1($this->key, $query);
         if (!$this->isDown)
@@ -131,9 +131,13 @@ class Vaptcha
         }
     }
 
+    private function getCurrentTime() {
+        return number_format(floor(microtime(true) * 1000), 0, '', '');
+    }
+
     private function getSignature($time)
     {
-        $now = time() * 1000;
+        $now = $this->getCurrentTime();
         if (($now - $time) > REQUEST_ABATE_TIME)
             return null;
         $signature = md5($now.$this->key);
@@ -145,7 +149,7 @@ class Vaptcha
 
     /**
      * 宕机模式验证
-     *
+     * 
      * @param [int] $time1
      * @param [int] $time2
      * @param [string] $signature
@@ -154,7 +158,7 @@ class Vaptcha
      */
     private function downTimeCheck($time1, $time2, $signature, $captcha)
     {
-        $now = time() * 1000;
+        $now = $this->getCurrentTime();
         if ($now - $time1 > REQUEST_ABATE_TIME || 
             $signature != md5($time2.$this->key) || 
             $now - $time2 < VALIDATE_WAIT_TIME)
@@ -174,7 +178,7 @@ class Vaptcha
         if (!$token || !$challenge || $token != md5($this->key.'vaptcha'.$challenge))
             return false;
         $url = API_URL.VALIDATE_URL;
-        $now = time() * 1000;
+        $now = $this->getCurrentTime();
         $query = "id=$this->vid&scene=$sceneId&token=$token&time=$now&version=".VERSION.'&sdklang='.SDK_LANG;
         $signature = $this->HMACSHA1($this->key, $query);
         $response = self::postValidate($url, "$query&signature=$signature");
@@ -189,7 +193,7 @@ class Vaptcha
         else {
             $time = (int)$strs[0];
             $signature = $strs[1];
-            $now = time() * 1000;
+            $now = $this->getCurrentTime();
             if ($now - $time > VALIDATE_PASS_TIME)
                 return false;
             else {
@@ -212,7 +216,7 @@ class Vaptcha
 
     private function getDownTimeCaptcha()
     {
-        $time = time() * 1000;
+        $time = $this->getCurrentTime();
         $md5 = md5($time.$this->key);
         $captcha = substr($md5, 0, 3);
         $verificationKey = substr($md5,30);
